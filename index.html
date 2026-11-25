@@ -1,0 +1,88 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl"><head><meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>تهنئتي - كروت تهنئة باسم اللي بتحبه</title>
+<meta name="description" content="اعمل كارت تهنئة بالاسم في ثانيتين: عيد ميلاد، جمعة مباركة، مبروك، حمد لله على السلامة، رمضان والعيد. حمّله وابعته واتساب">
+<meta name="theme-color" content="#7c3aed">
+<style>
+*{box-sizing:border-box;-webkit-tap-highlight-color:transparent}
+body{margin:0;font-family:Tahoma,"Segoe UI",Arial,sans-serif;background:#f3f0fa;color:#1f2937}
+header{background:linear-gradient(135deg,#7c3aed,#ec4899);color:#fff;padding:14px 16px}
+header h1{margin:0;font-size:22px}header small{opacity:.92}
+.wrap{max-width:900px;margin:auto;padding:12px;display:grid;grid-template-columns:1fr 1fr;gap:14px;align-items:start}
+@media(max-width:760px){.wrap{grid-template-columns:1fr}}
+.panel{background:#fff;border-radius:14px;padding:14px;box-shadow:0 2px 8px #0001}
+.panel h2{font-size:15px;margin:14px 0 6px;color:#7c3aed}.panel h2:first-child{margin-top:0}
+input,textarea{width:100%;padding:10px;border:1px solid #d6cfe8;border-radius:8px;font:inherit;font-size:16px}
+textarea{min-height:64px}
+.chips{display:flex;flex-wrap:wrap;gap:6px}
+.chips button{border:2px solid #e3dcf3;background:#fff;border-radius:18px;padding:7px 12px;font:inherit;font-size:14px;cursor:pointer}
+.chips button.on{border-color:#7c3aed;background:#f1eafe;font-weight:700}
+.sw{display:flex;gap:8px;flex-wrap:wrap}.sw i{width:34px;height:34px;border-radius:50%;cursor:pointer;border:3px solid #fff;box-shadow:0 0 0 1px #aaa}.sw i.on{box-shadow:0 0 0 3px #111}
+.btn{display:block;width:100%;text-align:center;text-decoration:none;border:0;border-radius:12px;padding:13px;font:inherit;font-weight:700;font-size:16px;margin-top:8px;cursor:pointer;background:#7c3aed;color:#fff}
+.btn.g{background:#25d366}.btn.l{background:#efe9fb;color:#6d28d9}
+.pv{position:sticky;top:8px}
+canvas{width:100%;border-radius:14px;box-shadow:0 6px 20px #0003;display:block;background:#ddd}
+.row{display:flex;gap:8px}.row>*{flex:1}
+</style></head><body>
+<header><h1>💌 تهنئتي</h1><small>اكتب الاسم، اختار المناسبة، حمّل الكارت وابعته واتساب</small></header>
+<div class="wrap">
+<section class="panel">
+<h2>المناسبة</h2><div class="chips" id="occ"></div>
+<h2>الاسم (اللي هتهنّيه)</h2><input id="to" placeholder="مثال: ماما / أحمد / أستاذ خالد">
+<h2>الرسالة</h2><textarea id="msg"></textarea>
+<div class="chips" id="alt" style="margin-top:6px"></div>
+<h2>من (اختياري)</h2><input id="from" placeholder="اسمك">
+<h2>التصميم</h2><div class="sw" id="sw"></div>
+<h2>الحجم</h2><div class="chips" id="sz"><button data-s="sq" class="on">مربع (واتساب)</button><button data-s="st">ستوري (طولي)</button></div>
+<button class="btn" id="dl">⬇️ حمّل الكارت</button>
+<button class="btn g" id="sh">📲 شارك (واتساب وغيره)</button>
+<a class="btn l" id="wa" target="_blank">ابعت لينك التطبيق لصاحبك</a>
+</section>
+<section class="pv"><canvas id="cv" width="1080" height="1080"></canvas></section>
+</div>
+<script>
+var $=function(i){return document.getElementById(i)};
+var OC=[
+{n:"عيد ميلاد 🎂",e:["🎂","🎈","🎉"],t:"كل سنة وانت طيب",m:["كل سنة وانت طيب وعيد ميلاد سعيد، ربنا يفرحك دايماً ويحقق كل اللي نفسك فيه","سنة جديدة مليانة نجاح وصحة وضحك. عقبال ١٠٠ سنة يا رب","يوم ميلادك أحلى يوم عندي، كل سنة وانت أقرب حاجة لقلبي"]},
+{n:"جمعة مباركة 🕌",e:["🕌","🌙","✨"],t:"جمعة مباركة",m:["جمعة مباركة، اللهم اجعلها جمعة خير وبركة وراحة بال علينا وعلى أحبابنا","اللهم في يوم الجمعة اغفر لنا ولوالدينا وارزقنا من حيث لا نحتسب","جمعة طيبة، لا تنسى الصلاة على النبي ﷺ وقراءة سورة الكهف"]},
+{n:"مبروك 🎊",e:["🎊","🥳","🌟"],t:"ألف مبروك",m:["ألف مبروك، تستاهل كل خير وربنا يتمم لك على خير","مبروك يا غالي، فرحتك فرحتي، وعقبال كل أحلامك","مبروك النجاح، تعب السنين جاب ثماره، فخورين بيك"]},
+{n:"رمضان كريم 🌙",e:["🌙","⭐","🏮"],t:"رمضان كريم",m:["رمضان كريم، كل عام وانتم بخير، تقبل الله منا ومنكم صالح الأعمال","اللهم بلغنا رمضان وأعنا على صيامه وقيامه، وكل سنة وانت طيب","رمضان مبارك عليك وعلى أهلك، أعاده الله علينا باليمن والبركات"]},
+{n:"عيد سعيد 🌸",e:["🌸","🎁","🕌"],t:"عيد مبارك",m:["كل سنة وانت طيب، عيد مبارك وتقبل الله طاعتكم","عيد سعيد عليك وعلى أهلك، أعاده الله علينا بالخير واليمن والبركات","العيد فرحة والفرحة بوجودك أحلى. كل عام وانت بخير"]},
+{n:"حمد لله على السلامة 🤍",e:["🤍","🌿","🕊️"],t:"حمد لله على السلامة",m:["حمد لله على سلامتك، نورت وحشتنا","الحمد لله على سلامتك، ربنا يديك الصحة ويبعد عنك كل شر","نورت بيتك، حمد لله على السلامة وألف سلامة"]},
+{n:"شفاك الله 🌷",e:["🌷","💐","🤲"],t:"شفاك الله",m:["شفاك الله وعافاك، لا بأس طهور إن شاء الله","ألف سلامة عليك، ربنا يشفيك شفاء لا يغادر سقماً","سلامتك غالية علينا، ادعي لك بالشفا العاجل"]},
+{n:"خطوبة / جواز 💍",e:["💍","💞","🌹"],t:"مبروك الفرح",m:["مبروك الخطوبة، ربنا يتمم لكم على خير ويجعل بيتكم عامر بالحب","ألف مبروك الجواز، بالرفاء والبنين وحياة مليانة سعادة","ربنا يجمع بينكم في خير ويرزقكم الذرية الصالحة، مبروك"]},
+{n:"شكراً 🙏",e:["🙏","💛","🌻"],t:"شكراً من القلب",m:["شكراً من قلبي على وقفتك معايا، عمري ما أنسى جميلك","مهما قلت شكراً مش هوفيك حقك، ربنا يجازيك كل خير","وجودك في حياتي نعمة، شكراً على كل حاجة"]}];
+var TH=[["#7c3aed","#ec4899","#fff"],["#0f766e","#22d3ee","#fff"],["#1e3a8a","#6366f1","#fff"],["#be123c","#fb923c","#fff"],["#111827","#6b7280","#fcd34d"],["#14532d","#84cc16","#fff"],["#fde68a","#fbbf24","#78350f"],["#fce7f3","#f9a8d4","#831843"]];
+var S={o:0,t:0,sz:"sq",m:OC[0].m[0]};
+function chips(id,arr,cur,fn){$(id).innerHTML=arr.map(function(x,i){return '<button data-i="'+i+'" class="'+(cur==i?"on":"")+'">'+x+'</button>'}).join("");$(id).querySelectorAll("button").forEach(function(b){b.onclick=function(){fn(+b.dataset.i)}})}
+function ui(){chips("occ",OC.map(function(o){return o.n}),S.o,function(i){S.o=i;S.m=OC[i].m[0];$("msg").value=S.m;ui();draw()});
+ chips("alt",OC[S.o].m.map(function(m,i){return "رسالة "+(i+1)}),-1,function(i){S.m=OC[S.o].m[i];$("msg").value=S.m;draw()});
+ $("sw").innerHTML=TH.map(function(t,i){return '<i data-i="'+i+'" style="background:linear-gradient(135deg,'+t[0]+','+t[1]+')" class="'+(S.t==i?"on":"")+'"></i>'}).join("");
+ $("sw").querySelectorAll("i").forEach(function(b){b.onclick=function(){S.t=+b.dataset.i;ui();draw()}})}
+document.querySelectorAll("#sz button").forEach(function(b){b.onclick=function(){S.sz=b.dataset.s;document.querySelectorAll("#sz button").forEach(function(x){x.classList.toggle("on",x==b)});draw()}});
+function wrap(x,t,w,fs,fn){var ws=t.split(/\s+/),l="",o=[];ws.forEach(function(wd){var tt=l?l+" "+wd:wd;if(x.measureText(tt).width>w&&l){o.push(l);l=wd}else l=tt});if(l)o.push(l);return o}
+function draw(){var c=$("cv"),W=1080,H=S.sz=="st"?1920:1080;c.width=W;c.height=H;var x=c.getContext("2d"),th=TH[S.t],o=OC[S.o];
+ var g=x.createLinearGradient(0,0,W,H);g.addColorStop(0,th[0]);g.addColorStop(1,th[1]);x.fillStyle=g;x.fillRect(0,0,W,H);
+ // pattern circles
+ x.globalAlpha=.10;x.fillStyle="#fff";for(var i=0;i<14;i++){var px=(i*397)%W,py=(i*613)%H,r=60+((i*53)%140);x.beginPath();x.arc(px,py,r,0,7);x.fill()}x.globalAlpha=1;
+ x.direction="rtl";x.textAlign="center";
+ var cy=H/2, em=o.e;x.font="110px sans-serif";x.fillStyle=th[2];
+ x.fillText(em[0],W/2,cy-(S.sz=="st"?560:400));
+ x.font="80px sans-serif";x.fillText(em[1],150,150);x.fillText(em[2],W-150,H-110);x.fillText(em[2],W-150,150);x.fillText(em[1],150,H-110);
+ // frame
+ x.strokeStyle=th[2];x.globalAlpha=.55;x.lineWidth=6;x.strokeRect(50,50,W-100,H-100);x.globalAlpha=1;
+ x.fillStyle=th[2];x.font="bold 100px Tahoma,Arial";var ty=cy-(S.sz=="st"?360:230);
+ wrap(x,o.t,900,100).forEach(function(l,i){x.fillText(l,W/2,ty+i*115)});
+ var to=$("to").value.trim();if(to){x.font="bold 84px Tahoma,Arial";x.globalAlpha=1;var a=x.createLinearGradient(0,0,W,0);x.fillStyle=th[2];var nm=to;x.fillText(nm,W/2,ty+150);
+  x.globalAlpha=.6;x.fillRect(W/2-180,ty+185,360,6);x.globalAlpha=1}
+ x.font="48px Tahoma,Arial";var ls=wrap(x,$("msg").value||S.m,860,48);var my=ty+(to?300:200);ls.forEach(function(l,i){x.fillText(l,W/2,my+i*74)});
+ var fr=$("from").value.trim();if(fr){x.font="bold 54px Tahoma,Arial";x.fillText("من: "+fr,W/2,my+ls.length*74+90)}
+ x.font="28px Tahoma,Arial";x.globalAlpha=.75;x.fillText("اعمل كارتك: mohamedelsayed16399-bit.github.io/tahnea-cards",W/2,H-80);x.globalAlpha=1}
+["to","msg","from"].forEach(function(i){$(i).addEventListener("input",function(){if(i=="msg")S.m=$("msg").value;draw()})});
+function blob(cb){$("cv").toBlob(cb,"image/png")}
+$("dl").onclick=function(){blob(function(b){var a=document.createElement("a");a.href=URL.createObjectURL(b);a.download="tahnea.png";a.click()})};
+$("sh").onclick=function(){blob(function(b){var f=new File([b],"tahnea.png",{type:"image/png"});if(navigator.canShare&&navigator.canShare({files:[f]}))navigator.share({files:[f]}).catch(function(){});else $("dl").click()})};
+$("wa").href="https://wa.me/?text="+encodeURIComponent("اعمل كروت تهنئة بالاسم مجاناً: https://mohamedelsayed16399-bit.github.io/tahnea-cards/");
+$("msg").value=S.m;ui();draw();
+</script></body></html>
