@@ -32,6 +32,7 @@ canvas{width:100%;border-radius:14px;box-shadow:0 6px 20px #0003;display:block;b
 <h2>الاسم (اللي هتهنّيه)</h2><input id="to" placeholder="مثال: ماما / أحمد / أستاذ خالد">
 <h2>الرسالة</h2><textarea id="msg"></textarea>
 <div class="chips" id="alt" style="margin-top:6px"></div>
+<h2>صورة (اختياري)</h2><input type="file" id="ph" accept="image/*"><button class="btn l" id="nph" style="padding:7px;font-size:13px">إزالة الصورة</button>
 <h2>من (اختياري)</h2><input id="from" placeholder="اسمك">
 <h2>التصميم</h2><div class="sw" id="sw"></div>
 <h2>الحجم</h2><div class="chips" id="sz"><button data-s="sq" class="on">مربع (واتساب)</button><button data-s="st">ستوري (طولي)</button></div>
@@ -54,7 +55,7 @@ var OC=[
 {n:"خطوبة / جواز 💍",e:["💍","💞","🌹"],t:"مبروك الفرح",m:["مبروك الخطوبة، ربنا يتمم لكم على خير ويجعل بيتكم عامر بالحب","ألف مبروك الجواز، بالرفاء والبنين وحياة مليانة سعادة","ربنا يجمع بينكم في خير ويرزقكم الذرية الصالحة، مبروك"]},
 {n:"شكراً 🙏",e:["🙏","💛","🌻"],t:"شكراً من القلب",m:["شكراً من قلبي على وقفتك معايا، عمري ما أنسى جميلك","مهما قلت شكراً مش هوفيك حقك، ربنا يجازيك كل خير","وجودك في حياتي نعمة، شكراً على كل حاجة"]}];
 var TH=[["#7c3aed","#ec4899","#fff"],["#0f766e","#22d3ee","#fff"],["#1e3a8a","#6366f1","#fff"],["#be123c","#fb923c","#fff"],["#111827","#6b7280","#fcd34d"],["#14532d","#84cc16","#fff"],["#fde68a","#fbbf24","#78350f"],["#fce7f3","#f9a8d4","#831843"]];
-var S={o:0,t:0,sz:"sq",m:OC[0].m[0]};
+var PI=null;var S={o:0,t:0,sz:"sq",m:OC[0].m[0]};
 function chips(id,arr,cur,fn){$(id).innerHTML=arr.map(function(x,i){return '<button data-i="'+i+'" class="'+(cur==i?"on":"")+'">'+x+'</button>'}).join("");$(id).querySelectorAll("button").forEach(function(b){b.onclick=function(){fn(+b.dataset.i)}})}
 function ui(){chips("occ",OC.map(function(o){return o.n}),S.o,function(i){S.o=i;S.m=OC[i].m[0];$("msg").value=S.m;ui();draw()});
  chips("alt",OC[S.o].m.map(function(m,i){return "رسالة "+(i+1)}),-1,function(i){S.m=OC[S.o].m[i];$("msg").value=S.m;draw()});
@@ -68,11 +69,11 @@ function draw(){var c=$("cv"),W=1080,H=S.sz=="st"?1920:1080;c.width=W;c.height=H
  x.globalAlpha=.10;x.fillStyle="#fff";for(var i=0;i<14;i++){var px=(i*397)%W,py=(i*613)%H,r=60+((i*53)%140);x.beginPath();x.arc(px,py,r,0,7);x.fill()}x.globalAlpha=1;
  x.direction="rtl";x.textAlign="center";
  var cy=H/2, em=o.e;x.font="110px sans-serif";x.fillStyle=th[2];
- x.fillText(em[0],W/2,cy-(S.sz=="st"?560:400));
+ if(PI){var pr=S.sz=="st"?170:88,py0=S.sz=="st"?cy-560:cy-400;x.save();x.beginPath();x.arc(W/2,py0+8,pr,0,7);x.clip();var q=Math.min(PI.width,PI.height);x.drawImage(PI,(PI.width-q)/2,(PI.height-q)/2,q,q,W/2-pr,py0+8-pr,pr*2,pr*2);x.restore();x.strokeStyle=th[2];x.lineWidth=8;x.beginPath();x.arc(W/2,py0+8,pr,0,7);x.stroke()}else x.fillText(em[0],W/2,cy-(S.sz=="st"?560:400));
  x.font="80px sans-serif";x.fillText(em[1],150,150);x.fillText(em[2],W-150,H-110);x.fillText(em[2],W-150,150);x.fillText(em[1],150,H-110);
  // frame
  x.strokeStyle=th[2];x.globalAlpha=.55;x.lineWidth=6;x.strokeRect(50,50,W-100,H-100);x.globalAlpha=1;
- x.fillStyle=th[2];x.font="bold 100px Tahoma,Arial";var ty=cy-(S.sz=="st"?360:230);
+ x.fillStyle=th[2];x.font="bold 100px Tahoma,Arial";var ty=cy-(S.sz=="st"?360:230)+(PI&&S.sz!="st"?110:0);
  wrap(x,o.t,900,100).forEach(function(l,i){x.fillText(l,W/2,ty+i*115)});
  var to=$("to").value.trim();if(to){x.font="bold 84px Tahoma,Arial";x.globalAlpha=1;var a=x.createLinearGradient(0,0,W,0);x.fillStyle=th[2];var nm=to;x.fillText(nm,W/2,ty+150);
   x.globalAlpha=.6;x.fillRect(W/2-180,ty+185,360,6);x.globalAlpha=1}
@@ -80,6 +81,7 @@ function draw(){var c=$("cv"),W=1080,H=S.sz=="st"?1920:1080;c.width=W;c.height=H
  var fr=$("from").value.trim();if(fr){x.font="bold 54px Tahoma,Arial";x.fillText("من: "+fr,W/2,my+ls.length*74+90)}
  x.font="28px Tahoma,Arial";x.globalAlpha=.75;x.fillText("اعمل كارتك: mohamedelsayed16399-bit.github.io/tahnea-cards",W/2,H-80);x.globalAlpha=1}
 ["to","msg","from"].forEach(function(i){$(i).addEventListener("input",function(){if(i=="msg")S.m=$("msg").value;draw()})});
+$("ph").onchange=function(){var f=this.files[0];if(!f)return;var im=new Image();im.onload=function(){PI=im;draw()};im.src=URL.createObjectURL(f)};$("nph").onclick=function(){PI=null;draw()};
 function blob(cb){$("cv").toBlob(cb,"image/png")}
 $("dl").onclick=function(){blob(function(b){var a=document.createElement("a");a.href=URL.createObjectURL(b);a.download="tahnea.png";a.click()})};
 $("sh").onclick=function(){blob(function(b){var f=new File([b],"tahnea.png",{type:"image/png"});if(navigator.canShare&&navigator.canShare({files:[f]}))navigator.share({files:[f]}).catch(function(){});else $("dl").click()})};
